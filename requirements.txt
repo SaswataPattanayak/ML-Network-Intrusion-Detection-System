@@ -1,0 +1,10 @@
+# Core ML / data
+numpy
+pandas
+scikit-learn==1.8.0
+joblib
+
+# Dashboard server & real-time streaming
+fastapi
+uvicorn[standard]
+websockets

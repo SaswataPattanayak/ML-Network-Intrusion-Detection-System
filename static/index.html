@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>IDS Security Dashboard — Live Monitoring</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body data-page="live">
+    <div class="shell">
+      <nav class="dashboard-tabs" aria-label="Dashboard sections">
+        <a class="dashboard-tab active" href="index.html">Live IDS Monitoring</a>
+        <a class="dashboard-tab" href="model-evaluation.html">Model Evaluation</a>
+      </nav>
+
+      <header class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">Real-Time IDS Demonstration</p>
+          <h1>Live IDS Monitoring</h1>
+          <p class="lead">
+            Monitor synthetic network flows as they pass through the trained ML inference pipeline.
+            This page is dedicated to live demonstration activity and is intentionally separated from offline model evaluation.
+          </p>
+        </div>
+        <div class="hero-panel">
+          <div class="status-pill" id="live-status-pill">
+            <span class="status-dot" id="live-status-dot"></span>
+            <span id="live-status-text">Starting…</span>
+          </div>
+          <div class="hero-live-note">
+            <strong>Inference source</strong>
+            <span>Synthetic network-flow generator → Random Forest → SQLite → WebSocket</span>
+          </div>
+        </div>
+      </header>
+
+      <main class="grid">
+        <section class="card span-12" id="live-feed-section">
+          <div class="section-head">
+            <div>
+              <p class="section-kicker">Synthetic Flow Monitoring</p>
+              <h2>ML threat detection feed</h2>
+            </div>
+            <div class="live-controls" aria-label="Synthetic flow controls">
+              <button class="control-btn primary" id="start-feed-btn" type="button">▶ Start Feed</button>
+              <button class="control-btn" id="pause-feed-btn" type="button">⏸ Pause</button>
+              <button class="control-btn" id="stop-feed-btn" type="button">⏹ Stop</button>
+              <button class="control-btn danger" id="clear-events-btn" type="button">🗑 Clear Events</button>
+            </div>
+            <div class="status-pill" id="live-status-pill">
+              <span class="status-dot" id="live-status-dot"></span>
+              <span id="live-status-text">Starting…</span>
+            </div>
+          </div>
+          <div class="live-stats" id="live-stats"></div>
+          <div class="live-feed-wrap">
+            <div id="live-feed" class="live-feed">
+              <p class="live-feed-empty" id="live-feed-empty">Waiting for synthetic network flows…</p>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+    <script src="app.js"></script>
+  </body>
+</html>

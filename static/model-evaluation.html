@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>IDS Security Dashboard — Model Evaluation</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body data-page="evaluation">
+    <div class="shell">
+      <nav class="dashboard-tabs" aria-label="Dashboard sections">
+        <a class="dashboard-tab" href="index.html">Live IDS Monitoring</a>
+        <a class="dashboard-tab active" href="model-evaluation.html">Model Evaluation</a>
+      </nav>
+
+      <header class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">Offline Machine-Learning Evaluation</p>
+          <h1>Model Evaluation</h1>
+          <p class="lead">
+            Evaluate the IDS classifiers using the held-out test dataset. All metrics, confusion matrices, ROC curves,
+            and test-set prediction analysis on this page are offline evaluation results and are separate from live monitoring.
+          </p>
+        </div>
+        <div class="hero-panel">
+          <div class="status-pill">
+            <span class="status-dot"></span>
+            <span id="dataset-status">Loading evaluation data</span>
+          </div>
+          <div class="hero-metrics" id="hero-metrics"></div>
+        </div>
+      </header>
+
+      <main class="grid">
+        <section class="card span-8">
+          <div class="section-head">
+            <div>
+              <p class="section-kicker">Model Health</p>
+              <h2>Classifier comparison</h2>
+            </div>
+            <p class="section-note" id="best-model-note"></p>
+            <p class="section-note data-source-note">Evaluation source: held-out test dataset</p>
+          </div>
+          <div id="model-bars" class="bars bars-lg"></div>
+        </section>
+
+        <section class="card span-4">
+          <div class="section-head">
+            <div>
+              <p class="section-kicker">Traffic Mix</p>
+              <h2>Test-set attack balance</h2>
+            </div>
+          </div>
+          <div class="donut-wrap">
+            <div class="donut" id="attack-donut">
+              <div class="donut-center">
+                <strong id="attack-share">0%</strong>
+                <span>attack traffic</span>
+              </div>
+            </div>
+          </div>
+          <div id="attack-legend" class="legend"></div>
+        </section>
+
+        <section class="card span-6">
+          <div class="section-head">
+            <div>
+              <p class="section-kicker">Dataset View</p>
+              <h2>Class distribution</h2>
+            </div>
+          </div>
+          <div class="split-chart">
+            <div>
+              <h3>Training data</h3>
+              <div id="train-distribution" class="bars"></div>
+            </div>
+            <div>
+              <h3>Testing data</h3>
+              <div id="test-distribution" class="bars"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card span-6">
+          <div class="section-head">
+            <div>
+              <p class="section-kicker">Protocol View</p>
+              <h2>Network protocol usage</h2>
+            </div>
+          </div>
+          <div class="split-chart">
+            <div>
+              <h3>Training data</h3>
+              <div id="train-protocols" class="bars"></div>
+            </div>
+            <div>
+              <h3>Testing data</h3>
+              <div id="test-protocols" class="bars"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card span-7">
+          <div class="section-head">
+            <div>
+              <p class="section-kicker">Detection Quality</p>
+              <h2>Per-class performance</h2>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Class</th>
+                  <th>Precision</th>
+                  <th>Recall</th>
+                  <th>F1 Score</th>
+                  <th>Support</th>
+                </tr>
+              </thead>
+              <tbody id="class-metrics"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="card span-5">
+          <div class="section-head">
+            <div>
+              <p class="section-kicker">Feature Focus</p>
+              <h2>Most influential signals</h2>
+            </div>
+          </div>
+          <div id="feature-importance" class="bars"></div>
+        </section>
+
+        <section class="card span-12">
+          <div class="section-head">
+            <div>
+              <p class="section-kicker">Model Diagnostics</p>
+              <h2>Confusion matrix for each model</h2>
+            </div>
+            <p class="section-note">Held-out test dataset: Normal vs Attack for every classifier.</p>
+          </div>
+          <div class="model-matrix-grid" id="confusion-matrix-grid"></div>
+        </section>
+
+        <section class="card span-12">
+          <div class="section-head">
+            <div>
+              <p class="section-kicker">ROC Analysis</p>
+              <h2>ROC curve for each model</h2>
+            </div>
+            <p class="section-note">One-vs-rest ROC curves for all IDS classes on every classifier, calculated from the held-out test dataset.</p>
+          </div>
+          <div class="roc-grid" id="roc-grid"></div>
+        </section>
+
+        <section class="card span-12">
+          <div class="section-head">
+            <div>
+              <p class="section-kicker">Historical Sample</p>
+              <h2>Test-set prediction analysis</h2>
+            </div>
+            <p class="section-note">Offline evaluation records from the held-out test dataset. These are not live alerts and are separate from the synthetic monitoring feed.</p>
+          </div>
+          <div class="alerts" id="alerts-grid"></div>
+        </section>
+        </main>
+    </div>
+
+    <template id="metric-card-template">
+      <article class="metric-card">
+        <span class="metric-label"></span>
+        <strong class="metric-value"></strong>
+      </article>
+    </template>
+
+    <script src="app.js"></script>
+  </body>
+</html>
