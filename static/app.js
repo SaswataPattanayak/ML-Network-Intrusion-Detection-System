@@ -4,18 +4,9 @@ function percent(value) {
   return `${(value * 100).toFixed(1)}%`;
 }
 
-/* ---------------------------------------------------------------- */
-/* STATIC / MODEL ANALYSIS                                          */
-/* ---------------------------------------------------------------- */
-
 function renderMetricCards(data) {
   const container = document.getElementById("hero-metrics");
   const template = document.getElementById("metric-card-template");
-
-  if (!container || !template) return;
-
-  container.innerHTML = "";
-
   const metrics = [
     ["Training rows", data.overview.train_rows.toLocaleString()],
     ["Testing rows", data.overview.test_rows.toLocaleString()],
@@ -33,46 +24,21 @@ function renderMetricCards(data) {
 
 function renderBars(containerId, items, valueKey, formatter = (value) => value) {
   const root = document.getElementById(containerId);
-  if (!root || !items) return;
-
   root.innerHTML = "";
-
-  if (!items.length) return;
-
   const maxValue = Math.max(...items.map((item) => item[valueKey]), 1);
 
   items.forEach((item, index) => {
     const row = document.createElement("div");
     row.className = "bar-row";
-
-    const label =
-      item.name ||
-      item.label ||
-      item.protocol ||
-      item.feature;
-
+    const label = item.name || item.label || item.protocol || item.feature;
     const width = (item[valueKey] / maxValue) * 100;
 
     row.innerHTML = `
       <span class="bar-label">${label}</span>
-
       <div class="bar-track">
-        <div
-          class="bar-fill"
-          style="
-            width:${width}%;
-            background:linear-gradient(
-              90deg,
-              ${colorScale[index % colorScale.length]},
-              #ffffff22
-            );
-          "
-        ></div>
+        <div class="bar-fill" style="width:${width}%; background:linear-gradient(90deg, ${colorScale[index % colorScale.length]}, #ffffff22);"></div>
       </div>
-
-      <span class="bar-value">
-        ${formatter(item[valueKey])}
-      </span>
+      <span class="bar-value">${formatter(item[valueKey])}</span>
     `;
 
     root.appendChild(row);
@@ -82,39 +48,26 @@ function renderBars(containerId, items, valueKey, formatter = (value) => value) 
 function renderAttackDonut(data) {
   const attackShare = data.overview.attack_share_test;
   const attackPercent = attackShare * 100;
-
   const donut = document.getElementById("attack-donut");
 
-  if (donut) {
-    donut.style.background =
-      `conic-gradient(
-        #ff6577 0 ${attackPercent}%,
-        rgba(255,255,255,0.08) ${attackPercent}% 100%
-      )`;
-  }
+  donut.style.background =
+    `conic-gradient(#ff6577 0 ${attackPercent}%, rgba(255,255,255,0.08) ${attackPercent}% 100%)`;
 
-  const attackShareElement = document.getElementById("attack-share");
-
-  if (attackShareElement) {
-    attackShareElement.textContent = percent(attackShare);
-  }
+  document.getElementById("attack-share").textContent = percent(attackShare);
 
   const legend = document.getElementById("attack-legend");
-
-  if (!legend) return;
-
   legend.innerHTML = "";
 
   [
     {
       label: "Attack",
       value: data.overview.attack_share_test,
-      color: "#ff6577",
+      color: "#ff6577"
     },
     {
       label: "Normal",
       value: data.overview.normal_share_test,
-      color: "#4ad7d1",
+      color: "#4ad7d1"
     },
   ].forEach((item) => {
     const row = document.createElement("div");
@@ -122,14 +75,9 @@ function renderAttackDonut(data) {
 
     row.innerHTML = `
       <div class="legend-left">
-        <span
-          class="legend-swatch"
-          style="background:${item.color}"
-        ></span>
-
+        <span class="legend-swatch" style="background:${item.color}"></span>
         <span>${item.label}</span>
       </div>
-
       <strong>${percent(item.value)}</strong>
     `;
 
@@ -139,9 +87,6 @@ function renderAttackDonut(data) {
 
 function renderClassMetrics(perClass) {
   const tbody = document.getElementById("class-metrics");
-
-  if (!tbody || !perClass) return;
-
   tbody.innerHTML = "";
 
   perClass.forEach((row) => {
@@ -149,25 +94,9 @@ function renderClassMetrics(perClass) {
 
     tr.innerHTML = `
       <td>${row.label}</td>
-
-      <td>
-        <span class="score-chip">
-          ${percent(row.precision)}
-        </span>
-      </td>
-
-      <td>
-        <span class="score-chip">
-          ${percent(row.recall)}
-        </span>
-      </td>
-
-      <td>
-        <span class="score-chip">
-          ${percent(row.f1_score)}
-        </span>
-      </td>
-
+      <td><span class="score-chip">${percent(row.precision)}</span></td>
+      <td><span class="score-chip">${percent(row.recall)}</span></td>
+      <td><span class="score-chip">${percent(row.f1_score)}</span></td>
       <td>${row.support.toLocaleString()}</td>
     `;
 
@@ -177,15 +106,11 @@ function renderClassMetrics(perClass) {
 
 function renderModelConfusionMatrices(confusionMatrices) {
   const root = document.getElementById("confusion-matrix-grid");
-
-  if (!root || !confusionMatrices) return;
-
   root.innerHTML = "";
 
   confusionMatrices.forEach((entry) => {
     const matrix = entry.matrix;
     const labels = entry.labels;
-
     const maxValue = Math.max(...matrix.flat(), 1);
 
     const grid = document.createElement("div");
@@ -197,10 +122,7 @@ function renderModelConfusionMatrices(confusionMatrices) {
     header.innerHTML =
       `<div class="matrix-label">Actual -></div>` +
       labels
-        .map(
-          (label) =>
-            `<div class="matrix-label">${label}</div>`
-        )
+        .map((label) => `<div class="matrix-label">${label}</div>`)
         .join("");
 
     grid.appendChild(header);
@@ -214,17 +136,11 @@ function renderModelConfusionMatrices(confusionMatrices) {
         row
           .map((cell) => {
             const intensity = cell / maxValue;
-
             const bg =
-              `rgba(255, 190, 85, ${
-                0.14 + intensity * 0.62
-              })`;
+              `rgba(255, 190, 85, ${0.14 + intensity * 0.62})`;
 
             return `
-              <div
-                class="matrix-cell"
-                style="background:${bg}"
-              >
+              <div class="matrix-cell" style="background:${bg}">
                 ${cell.toLocaleString()}
               </div>
             `;
@@ -241,14 +157,9 @@ function renderModelConfusionMatrices(confusionMatrices) {
       <div class="matrix-card-head">
         <div>
           <h3>${entry.model}</h3>
-          <div class="roc-subtle">
-            Binary confusion matrix
-          </div>
+          <div class="roc-subtle">Binary confusion matrix</div>
         </div>
-
-        <div class="roc-subtle">
-          Normal vs Attack
-        </div>
+        <div class="roc-subtle">Normal vs Attack</div>
       </div>
     `;
 
@@ -261,26 +172,20 @@ function buildRocPath(points, width, height, padding) {
   return points
     .map((point, index) => {
       const x =
-        padding +
-        point.fpr * (width - padding * 2);
+        padding + point.fpr * (width - padding * 2);
 
       const y =
         height -
         padding -
         point.tpr * (height - padding * 2);
 
-      return `${
-        index === 0 ? "M" : "L"
-      }${x.toFixed(2)},${y.toFixed(2)}`;
+      return `${index === 0 ? "M" : "L"}${x.toFixed(2)},${y.toFixed(2)}`;
     })
     .join(" ");
 }
 
 function renderRocCurves(rocCurves) {
   const root = document.getElementById("roc-grid");
-
-  if (!root || !rocCurves) return;
-
   root.innerHTML = "";
 
   const width = 360;
@@ -294,8 +199,7 @@ function renderRocCurves(rocCurves) {
     const axisLines = [0.25, 0.5, 0.75]
       .map((step) => {
         const x =
-          padding +
-          step * (width - padding * 2);
+          padding + step * (width - padding * 2);
 
         const y =
           height -
@@ -333,9 +237,7 @@ function renderRocCurves(rocCurves) {
               padding
             )}"
             fill="none"
-            stroke="${
-              colorScale[index % colorScale.length]
-            }"
+            stroke="${colorScale[index % colorScale.length]}"
             stroke-width="3"
             stroke-linecap="round"
           />
@@ -350,21 +252,12 @@ function renderRocCurves(rocCurves) {
             <div class="roc-legend-left">
               <span
                 class="roc-swatch"
-                style="
-                  background:${
-                    colorScale[
-                      index % colorScale.length
-                    ]
-                  }
-                "
+                style="background:${colorScale[index % colorScale.length]}"
               ></span>
-
               <span>${curve.label}</span>
             </div>
 
-            <strong>
-              AUC ${curve.auc.toFixed(3)}
-            </strong>
+            <strong>AUC ${curve.auc.toFixed(3)}</strong>
           </div>
         `
       )
@@ -374,7 +267,6 @@ function renderRocCurves(rocCurves) {
       <div class="roc-card-head">
         <div>
           <h3>${modelEntry.model}</h3>
-
           <div class="roc-subtle">
             Macro AUC ${modelEntry.macro_auc.toFixed(3)}
           </div>
@@ -453,16 +345,12 @@ function renderRocCurves(rocCurves) {
 
 function renderAlerts(alerts) {
   const root = document.getElementById("alerts-grid");
-
-  if (!root || !alerts) return;
-
   root.innerHTML = "";
 
   alerts.forEach((alert) => {
     const card = document.createElement("article");
-
     const severityClass =
-      `badge-${(alert.severity || "Low").toLowerCase()}`;
+      `badge-${alert.severity.toLowerCase()}`;
 
     card.className = "alert-card";
 
@@ -505,9 +393,7 @@ function renderAlerts(alerts) {
 
       <div class="alert-pairs">
         <span>Bytes sent</span>
-        <strong>
-          ${alert.bytes_sent.toLocaleString()}
-        </strong>
+        <strong>${alert.bytes_sent.toLocaleString()}</strong>
       </div>
 
       <div class="alert-score">
@@ -516,21 +402,18 @@ function renderAlerts(alerts) {
             class="bar-fill"
             style="
               width:${alert.risk_score}%;
-              background:
-                linear-gradient(
-                  90deg,
-                  #ffbe55,
-                  #ff6577
-                )
+              background:linear-gradient(
+                90deg,
+                #ffbe55,
+                #ff6577
+              )
             "
           ></div>
         </div>
 
         <div class="alert-meta">
           <span>Risk score</span>
-          <strong>
-            ${alert.risk_score}/100
-          </strong>
+          <strong>${alert.risk_score}/100</strong>
         </div>
       </div>
     `;
@@ -539,65 +422,41 @@ function renderAlerts(alerts) {
   });
 }
 
+
 /* ---------------------------------------------------------------- */
-/* PHASE 4: SYNTHETIC FLOW LIVE MONITORING                         */
+/* PHASE 4: Synthetic flow alert feed (WebSocket-driven)            */
 /* ---------------------------------------------------------------- */
 
 const LIVE_FEED_MAX_ITEMS = 60;
 
-/*
- * IMPORTANT:
- *
- * liveState represents the database-backed live monitoring state.
- *
- * We do NOT initialise it with 20 or any other artificial number.
- * The backend /api/alerts/stats endpoint is the source of truth.
- */
 const liveState = {
   totalFlows: 0,
   totalAttacks: 0,
-
   bySeverity: {
     Critical: 0,
     High: 0,
     Medium: 0,
-    Low: 0,
+    Low: 0
   },
-
   socket: null,
   reconnectDelayMs: 1000,
-  statsRefreshTimer: null,
 };
 
 const controlState = {
-  status: "running",
+  status: "running"
 };
-
-/* ---------------------------------------------------------------- */
-/* LIVE CONTROL BUTTONS                                             */
-/* ---------------------------------------------------------------- */
 
 function updateControlButtons(status) {
   controlState.status = status;
 
-  const start = document.getElementById(
-    "start-feed-btn"
-  );
-
-  const pause = document.getElementById(
-    "pause-feed-btn"
-  );
-
-  const stop = document.getElementById(
-    "stop-feed-btn"
-  );
+  const start = document.getElementById("start-feed-btn");
+  const pause = document.getElementById("pause-feed-btn");
+  const stop = document.getElementById("stop-feed-btn");
 
   if (!start || !pause || !stop) return;
 
   start.disabled = status === "running";
-
   pause.disabled = status !== "running";
-
   stop.disabled = status === "stopped";
 
   start.textContent =
@@ -618,7 +477,7 @@ async function setSyntheticControl(action) {
 
   try {
     const response = await fetch(endpoint, {
-      method: "POST",
+      method: "POST"
     });
 
     const data = await response.json();
@@ -631,39 +490,24 @@ async function setSyntheticControl(action) {
 
     updateControlButtons(data.status);
 
-    if (data.status === "running") {
-      setLiveStatus("live");
-    } else if (data.status === "paused") {
-      setLiveStatus("connecting");
+    setLiveStatus(
+      data.status === "running"
+        ? "live"
+        : data.status === "paused"
+        ? "connecting"
+        : "down"
+    );
 
-      const statusText =
-        document.getElementById(
-          "live-status-text"
-        );
+    if (data.status === "paused") {
+      document.getElementById(
+        "live-status-text"
+      ).textContent = "Synthetic feed paused";
 
-      if (statusText) {
-        statusText.textContent =
-          "Synthetic feed paused";
-      }
     } else if (data.status === "stopped") {
-      setLiveStatus("down");
-
-      const statusText =
-        document.getElementById(
-          "live-status-text"
-        );
-
-      if (statusText) {
-        statusText.textContent =
-          "Synthetic feed stopped";
-      }
+      document.getElementById(
+        "live-status-text"
+      ).textContent = "Synthetic feed stopped";
     }
-
-    /*
-     * Immediately synchronise the counters after
-     * Start / Pause / Resume / Stop.
-     */
-    await refreshLiveStats();
 
   } catch (error) {
     console.error(
@@ -673,16 +517,12 @@ async function setSyntheticControl(action) {
   }
 }
 
-/* ---------------------------------------------------------------- */
-/* CLEAR LIVE EVENTS                                                */
-/* ---------------------------------------------------------------- */
-
 async function clearLiveEvents() {
   try {
     const response = await fetch(
       "/api/alerts/clear",
       {
-        method: "POST",
+        method: "POST"
       }
     );
 
@@ -694,9 +534,6 @@ async function clearLiveEvents() {
       );
     }
 
-    /*
-     * Immediately clear frontend counters.
-     */
     liveState.totalFlows = 0;
     liveState.totalAttacks = 0;
 
@@ -704,30 +541,21 @@ async function clearLiveEvents() {
       Critical: 0,
       High: 0,
       Medium: 0,
-      Low: 0,
+      Low: 0
     };
 
-    /*
-     * Clear visible live feed.
-     */
-    const feed =
-      document.getElementById("live-feed");
+    const feed = document.getElementById(
+      "live-feed"
+    );
 
-    if (feed) {
-      feed.innerHTML =
-        '<p class="live-feed-empty" id="live-feed-empty">' +
-        "Waiting for synthetic network flows…" +
-        "</p>";
-    }
+    feed.innerHTML =
+      '<p class="live-feed-empty" id="live-feed-empty">' +
+      'Waiting for synthetic network flows…' +
+      '</p>';
 
     renderLiveStats();
 
-    /*
-     * IMPORTANT:
-     *
-     * Confirm the frontend matches SQLite after
-     * the clear operation.
-     */
+    // Confirm UI matches SQLite after clearing.
     await refreshLiveStats();
 
   } catch (error) {
@@ -756,18 +584,14 @@ function bindLiveControls() {
     .getElementById("pause-feed-btn")
     ?.addEventListener(
       "click",
-      () => {
-        setSyntheticControl("pause");
-      }
+      () => setSyntheticControl("pause")
     );
 
   document
     .getElementById("stop-feed-btn")
     ?.addEventListener(
       "click",
-      () => {
-        setSyntheticControl("stop");
-      }
+      () => setSyntheticControl("stop")
     );
 
   document
@@ -778,11 +602,9 @@ function bindLiveControls() {
     );
 }
 
-/* ---------------------------------------------------------------- */
-/* LIVE CONNECTION STATUS                                           */
-/* ---------------------------------------------------------------- */
-
 function setLiveStatus(state) {
+  // state: 'connecting' | 'live' | 'down'
+
   const pill =
     document.getElementById(
       "live-status-pill"
@@ -792,8 +614,6 @@ function setLiveStatus(state) {
     document.getElementById(
       "live-status-text"
     );
-
-  if (!pill || !text) return;
 
   pill.classList.remove(
     "status-live",
@@ -812,182 +632,73 @@ function setLiveStatus(state) {
   }[state];
 }
 
-/* ---------------------------------------------------------------- */
-/* LIVE STATISTICS                                                   */
-/* ---------------------------------------------------------------- */
-
 function renderLiveStats() {
-  const root =
-    document.getElementById(
-      "live-stats"
-    );
+  const root = document.getElementById("live-stats");
 
+  // Prevent the entire dashboard from stopping if
+  // the live statistics container is not present.
   if (!root) return;
 
-  const attackRate =
-    liveState.totalFlows > 0
-      ? percent(
-          liveState.totalAttacks /
-            liveState.totalFlows
-        )
-      : "0.0%";
+  const attackRate = liveState.totalFlows
+    ? percent(liveState.totalAttacks / liveState.totalFlows)
+    : "0.0%";
 
   root.innerHTML = "";
 
   [
     [
       "Flows analyzed",
-      liveState.totalFlows.toLocaleString(),
+      liveState.totalFlows.toLocaleString()
     ],
-
     [
       "Attacks detected",
-      liveState.totalAttacks.toLocaleString(),
+      liveState.totalAttacks.toLocaleString()
     ],
-
     [
       "Attack rate",
-      attackRate,
+      attackRate
     ],
-
     [
       "Critical alerts",
-      liveState.bySeverity.Critical.toLocaleString(),
+      liveState.bySeverity.Critical.toLocaleString()
     ],
-  ].forEach(([label, value]) => {
-    const card =
-      document.createElement("div");
+  ].forEach(
+    ([label, value]) => {
+      const card =
+        document.createElement(
+          "div"
+        );
 
-    card.className =
-      "live-stat-card";
+      card.className =
+        "live-stat-card";
 
-    card.innerHTML = `
-      <span class="live-stat-label">
-        ${label}
-      </span>
+      card.innerHTML = `
+        <span class="live-stat-label">
+          ${label}
+        </span>
 
-      <strong class="live-stat-value">
-        ${value}
-      </strong>
-    `;
+        <strong class="live-stat-value">
+          ${value}
+        </strong>
+      `;
 
-    root.appendChild(card);
-  });
-}
-
-/*
- * Synchronise frontend counters with the backend database.
- *
- * This is now the authoritative source for:
- *
- *   Flows analyzed
- *   Attacks detected
- *   Critical
- *   High
- *   Medium
- *   Low
- */
-async function refreshLiveStats() {
-  try {
-    const response = await fetch(
-      "/api/alerts/stats?ts=" +
-        Date.now(),
-      {
-        cache: "no-store",
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error(
-        "Failed to load live statistics"
-      );
+      root.appendChild(card);
     }
-
-    const data =
-      await response.json();
-
-    /*
-     * Never use a hard-coded initial value.
-     *
-     * If backend returns zero, display zero.
-     */
-    liveState.totalFlows =
-      Number(
-        data.total_flows_seen ?? 0
-      );
-
-    liveState.totalAttacks =
-      Number(
-        data.total_attacks ?? 0
-      );
-
-    liveState.bySeverity = {
-      Critical: Number(
-        data.by_severity?.Critical ?? 0
-      ),
-
-      High: Number(
-        data.by_severity?.High ?? 0
-      ),
-
-      Medium: Number(
-        data.by_severity?.Medium ?? 0
-      ),
-
-      Low: Number(
-        data.by_severity?.Low ?? 0
-      ),
-    };
-
-    renderLiveStats();
-
-  } catch (error) {
-    console.error(
-      "Could not refresh live statistics",
-      error
-    );
-  }
+  );
 }
-
-/*
- * Keep the dashboard synchronized even if a WebSocket
- * event is missed or temporarily disconnected.
- *
- * This does NOT create new data.
- * It only reads the existing backend statistics.
- */
-function startLiveStatsSync() {
-  if (liveState.statsRefreshTimer) {
-    clearInterval(
-      liveState.statsRefreshTimer
-    );
-  }
-
-  /*
-   * Refresh every 3 seconds.
-   */
-  liveState.statsRefreshTimer =
-    setInterval(
-      refreshLiveStats,
-      3000
-    );
-}
-
-/* ---------------------------------------------------------------- */
-/* LIVE ALERT DISPLAY                                                */
-/* ---------------------------------------------------------------- */
 
 function formatTimestamp(isoString) {
   try {
-    const date =
-      new Date(isoString);
+    const date = new Date(
+      isoString
+    );
 
     return date.toLocaleTimeString(
       [],
       {
         hour: "2-digit",
         minute: "2-digit",
-        second: "2-digit",
+        second: "2-digit"
       }
     );
 
@@ -1001,7 +712,9 @@ function buildLiveAlertNode(
   { flash = false } = {}
 ) {
   const item =
-    document.createElement("div");
+    document.createElement(
+      "div"
+    );
 
   const isAttack =
     Boolean(alert.is_attack);
@@ -1014,9 +727,7 @@ function buildLiveAlertNode(
 
   item.className =
     `live-alert-item ${
-      isAttack
-        ? "is-attack"
-        : ""
+      isAttack ? "is-attack" : ""
     } ${
       flash
         ? (
@@ -1029,25 +740,23 @@ function buildLiveAlertNode(
 
   item.innerHTML = `
     <span class="live-alert-time">
-      ${formatTimestamp(alert.timestamp)}
+      ${formatTimestamp(
+        alert.timestamp
+      )}
     </span>
 
     <span class="live-alert-flow">
       <strong>
         ${alert.attack_type}
       </strong>
-
       —
       ${alert.source_ip || "?"}
       →
       ${alert.destination_ip || "?"}
-
       (${alert.protocol || "?"})
     </span>
 
-    <span
-      class="badge badge-${severity}"
-    >
+    <span class="badge badge-${severity}">
       ${alert.severity || "Low"}
     </span>
 
@@ -1070,8 +779,6 @@ function prependLiveAlert(
     document.getElementById(
       "live-feed"
     );
-
-  if (!feed) return;
 
   const empty =
     document.getElementById(
@@ -1099,98 +806,105 @@ function prependLiveAlert(
     );
   }
 
-  /*
-   * IMPORTANT:
-   *
-   * Do NOT increment the database-backed
-   * statistics here.
-   *
-   * refreshLiveStats() is responsible for
-   * synchronising those values.
-   *
-   * This prevents duplicate counting.
-   */
+  liveState.totalFlows += 1;
 
-  if (flash) {
-    /*
-     * The backend will provide the
-     * authoritative totals shortly.
-     */
-    refreshLiveStats();
+  if (alert.is_attack) {
+    liveState.totalAttacks += 1;
+
+    const severity =
+      alert.severity &&
+      liveState.bySeverity.hasOwnProperty(
+        alert.severity
+      )
+        ? alert.severity
+        : "Medium";
+
+    liveState.bySeverity[
+      severity
+    ] =
+      (
+        liveState.bySeverity[
+          severity
+        ] || 0
+      ) + 1;
   }
+
+  renderLiveStats();
 }
 
-/*
- * Load existing alerts into the visible feed.
- *
- * IMPORTANT:
- *
- * Loading the backlog does NOT mean new
- * flows were analysed now.
- *
- * Therefore this function only renders
- * the alerts and does not increment
- * liveState.totalFlows.
- */
-function loadLiveBacklog(alerts) {
+function loadLiveBacklog(_alerts) {
+  // The live feed is intentionally session/connection based.
+  // Do NOT repopulate old SQLite history when the browser is refreshed.
+  // The persistent totals are loaded separately by refreshLiveStats.
+
   const feed =
     document.getElementById(
       "live-feed"
     );
 
-  const empty =
-    document.getElementById(
-      "live-feed-empty"
-    );
-
   if (!feed) return;
 
-  if (
-    !alerts ||
-    alerts.length === 0
-  ) {
-    if (
-      !feed.children.length &&
-      empty
-    ) {
-      return;
-    }
-
-    return;
-  }
-
-  if (empty) {
-    empty.remove();
-  }
-
-  feed.innerHTML = "";
-
-  alerts
-    .slice(
-      0,
-      LIVE_FEED_MAX_ITEMS
-    )
-    .forEach((alert) => {
-      feed.appendChild(
-        buildLiveAlertNode(
-          alert,
-          {
-            flash: false,
-          }
-        )
-      );
-    });
+  feed.innerHTML =
+    '<p class="live-feed-empty" id="live-feed-empty">' +
+    'Waiting for new synthetic network flows…' +
+    '</p>';
 }
 
-/* ---------------------------------------------------------------- */
-/* WEBSOCKET LIVE FEED                                               */
-/* ---------------------------------------------------------------- */
+async function refreshLiveStats() {
+  try {
+    const response =
+      await fetch(
+        "/api/alerts/stats?ts=" +
+        Date.now()
+      );
+
+    if (!response.ok) {
+      throw new Error(
+        "Failed to load live statistics"
+      );
+    }
+
+    const data =
+      await response.json();
+
+    liveState.totalFlows =
+      data.total_flows_seen || 0;
+
+    liveState.totalAttacks =
+      data.total_attacks || 0;
+
+    liveState.bySeverity = {
+      Critical:
+        data.by_severity?.Critical || 0,
+
+      High:
+        data.by_severity?.High || 0,
+
+      Medium:
+        data.by_severity?.Medium || 0,
+
+      Low:
+        data.by_severity?.Low || 0,
+    };
+
+    renderLiveStats();
+
+  } catch (error) {
+    console.error(
+      "Could not refresh live statistics",
+      error
+    );
+  }
+}
 
 function connectLiveFeed() {
-  setLiveStatus("connecting");
+  setLiveStatus(
+    "connecting"
+  );
 
   const protocol =
-    window.location.protocol === "https:"
+    window.location.protocol ===
+    "https:"
       ? "wss:"
       : "ws:";
 
@@ -1204,94 +918,75 @@ function connectLiveFeed() {
     socket;
 
   socket.onopen = () => {
-    setLiveStatus("live");
+    // WebSocket connection is healthy; actual generator state is synchronized
+    // separately by /api/health.
 
-    /*
-     * Do not assume that WebSocket connection
-     * means synthetic generator is running.
-     *
-     * The backend health endpoint remains the
-     * authority for feed status.
-     */
-    syncSyntheticStatus();
-
-    /*
-     * Immediately restore database-backed
-     * statistics.
-     */
-    refreshLiveStats();
+    setLiveStatus(
+      "live"
+    );
 
     liveState.reconnectDelayMs =
       1000;
+
+    syncSyntheticStatus();
   };
 
-  socket.onmessage = (event) => {
-    let message;
+  socket.onmessage =
+    (event) => {
+      let message;
 
-    try {
-      message =
-        JSON.parse(
-          event.data
+      try {
+        message =
+          JSON.parse(
+            event.data
+          );
+
+      } catch (error) {
+        console.error(
+          "Malformed WebSocket message",
+          error
         );
 
-    } catch (error) {
-      console.error(
-        "Malformed WebSocket message",
-        error
-      );
+        return;
+      }
 
-      return;
-    }
+      if (
+        message.type ===
+        "backlog"
+      ) {
+        // Backend deliberately sends an empty backlog on a new connection.
+        // Refresh only the persistent counters; old alert cards stay hidden.
 
-    if (
-      message.type ===
-      "backlog"
-    ) {
-      /*
-       * Backlog is display-only.
-       * It must not increment counters.
-       */
-      loadLiveBacklog(
-        message.data
-      );
+        loadLiveBacklog(
+          message.data
+        );
 
-      /*
-       * Restore authoritative
-       * statistics from SQLite.
-       */
-      refreshLiveStats();
+        refreshLiveStats();
 
-    } else if (
-      message.type ===
-      "alert"
-    ) {
-      /*
-       * New alert.
-       *
-       * Display it immediately.
-       */
-      prependLiveAlert(
-        message.data,
-        {
-          flash: true,
-        }
-      );
-    }
-  };
+      } else if (
+        message.type ===
+        "alert"
+      ) {
+        prependLiveAlert(
+          message.data,
+          {
+            flash: true
+          }
+        );
+
+        refreshLiveStats();
+      }
+    };
 
   socket.onclose = () => {
-    setLiveStatus("down");
+    setLiveStatus(
+      "down"
+    );
 
-    /*
-     * Restore statistics before reconnecting.
-     */
-    refreshLiveStats();
+    // Exponential backoff reconnect, capped at 15s,
+    // so a restarted backend or laptop waking from sleep
+    // recovers the live feed automatically.
 
-    /*
-     * Exponential backoff.
-     *
-     * Maximum 15 seconds.
-     */
     setTimeout(
       connectLiveFeed,
       liveState.reconnectDelayMs
@@ -1309,9 +1004,7 @@ function connectLiveFeed() {
   };
 }
 
-/* ---------------------------------------------------------------- */
-/* STATIC DASHBOARD BOOT                                             */
-/* ---------------------------------------------------------------- */
+renderLiveStats();
 
 async function boot() {
   const status =
@@ -1322,39 +1015,25 @@ async function boot() {
   try {
     const response =
       await fetch(
-        `data/dashboard_data.json?ts=${Date.now()}`,
-        {
-          cache: "no-store",
-        }
+        `data/dashboard_data.json?ts=${Date.now()}`
       );
-
-    if (!response.ok) {
-      throw new Error(
-        "Could not load dashboard data"
-      );
-    }
 
     const data =
       await response.json();
 
-    if (status) {
-      status.textContent =
-        `Loaded from ${data.meta.generated_from}`;
-    }
+    status.textContent =
+      `Loaded from ${data.meta.generated_from}`;
 
-    renderMetricCards(data);
+    renderMetricCards(
+      data
+    );
 
-    const bestModelNote =
-      document.getElementById(
-        "best-model-note"
-      );
-
-    if (bestModelNote) {
-      bestModelNote.textContent =
-        `${data.overview.best_model} leads the evaluated models with ${percent(
-          data.overview.best_accuracy
-        )} test accuracy.`;
-    }
+    document.getElementById(
+      "best-model-note"
+    ).textContent =
+      `${data.overview.best_model} leads the evaluated models with ${percent(
+        data.overview.best_accuracy
+      )} test accuracy.`;
 
     renderBars(
       "model-bars",
@@ -1363,7 +1042,9 @@ async function boot() {
       percent
     );
 
-    renderAttackDonut(data);
+    renderAttackDonut(
+      data
+    );
 
     renderBars(
       "train-distribution",
@@ -1421,39 +1102,26 @@ async function boot() {
       data.alerts
     );
 
-  } catch (error) {
-    if (status) {
-      status.textContent =
-        "Could not load dashboard data";
-    }
+    // Dynamic monitoring statistics come from SQLite,
+    // not the static dashboard JSON and not a hard-coded
+    // WebSocket backlog size.
 
-    console.error(
-      "Static dashboard loading failed",
-      error
-    );
+    await refreshLiveStats();
+
+  } catch (error) {
+    status.textContent =
+      "Could not load dashboard data";
+
+    console.error(error);
   }
 }
-
-/* ---------------------------------------------------------------- */
-/* SYNTHETIC FEED STATUS                                            */
-/* ---------------------------------------------------------------- */
 
 async function syncSyntheticStatus() {
   try {
     const response =
       await fetch(
-        "/api/health?ts=" +
-          Date.now(),
-        {
-          cache: "no-store",
-        }
+        "/api/health"
       );
-
-    if (!response.ok) {
-      throw new Error(
-        "Health request failed"
-      );
-    }
 
     const data =
       await response.json();
@@ -1471,41 +1139,30 @@ async function syncSyntheticStatus() {
     );
 
     if (
-      status === "running"
-    ) {
-      setLiveStatus("live");
-
-    } else if (
-      status === "paused"
+      status ===
+      "paused"
     ) {
       setLiveStatus(
         "connecting"
       );
 
-      const text =
-        document.getElementById(
-          "live-status-text"
-        );
-
-      if (text) {
-        text.textContent =
-          "Synthetic feed paused";
-      }
+      document.getElementById(
+        "live-status-text"
+      ).textContent =
+        "Synthetic feed paused";
 
     } else if (
-      status === "stopped"
+      status ===
+      "stopped"
     ) {
-      setLiveStatus("down");
+      setLiveStatus(
+        "down"
+      );
 
-      const text =
-        document.getElementById(
-          "live-status-text"
-        );
-
-      if (text) {
-        text.textContent =
-          "Synthetic feed stopped";
-      }
+      document.getElementById(
+        "live-status-text"
+      ).textContent =
+        "Synthetic feed stopped";
     }
 
   } catch (error) {
@@ -1516,29 +1173,7 @@ async function syncSyntheticStatus() {
   }
 }
 
-/* ---------------------------------------------------------------- */
-/* APPLICATION STARTUP                                              */
-/* ---------------------------------------------------------------- */
-
-/*
- * The dashboard is intentionally split into two separate pages.
- * Only the page that needs a given subsystem starts it. This prevents
- * the Model Evaluation page from opening a live WebSocket connection
- * or polling SQLite, and keeps the two dashboards conceptually separate.
- */
-const dashboardPage =
-  document.body?.dataset.page || "live";
-
-if (dashboardPage === "evaluation") {
-  /* Offline/static model evaluation only. */
-  boot();
-} else {
-  /* Live IDS monitoring only. */
-  refreshLiveStats();
-  renderLiveStats();
-  bindLiveControls();
-  syncSyntheticStatus();
-  connectLiveFeed();
-  startLiveStatsSync();
-}
-
+boot();
+bindLiveControls();
+syncSyntheticStatus();
+connectLiveFeed();
